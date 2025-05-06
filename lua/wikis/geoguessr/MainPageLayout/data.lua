@@ -1,6 +1,6 @@
 ---
 -- @Liquipedia
--- wiki=ageofempires
+-- wiki=geoguessr
 -- page=Module:MainPageLayout/data
 --
 -- Please see https://github.com/Liquipedia/Lua-Modules to contribute
@@ -32,20 +32,23 @@ local CONTENT = {
 	},
 	transfers = {
 		heading = 'Transfers',
-		body = TransfersList{limit = 10},
+		body = TransfersList{
+			transferPage = function ()
+				return 'Player Transfers/' .. os.date('%Y')
+			end
+		},
 		boxid = 1509,
 	},
 	thisDay = {
 		heading = ThisDayWidgets.Title(),
-		body = ThisDayWidgets.Content{
-			birthdayListPage = 'Birthday list'
-		},
+		body = ThisDayWidgets.Content(),
 		padding = true,
 		boxid = 1510,
 	},
 	specialEvents = {
 		noPanel = true,
 		body = '{{Liquipedia:Special Event}}',
+		boxid = 1511,
 	},
 	filterButtons = {
 		noPanel = true,
@@ -56,10 +59,7 @@ local CONTENT = {
 	},
 	matches = {
 		heading = 'Matches',
-		body = MatchTicker{
-			displayGameIcons = true,
-			matchesPortal = 'Liquipedia:Upcoming_and_ongoing_matches'
-		},
+		body = MatchTicker{},
 		padding = true,
 		boxid = 1507,
 		panelAttributes = {
@@ -69,27 +69,38 @@ local CONTENT = {
 	tournaments = {
 		heading = 'Tournaments',
 		body = TournamentsTicker{
-			upcomingDays = 21,
-			modifierTier1 = 42,
-			completedDays = 14,
-			displayGameIcons = true
+			upcomingDays = 60,
+			completedDays = 30
 		},
-		padding = true,
 		boxid = 1508,
 	},
 }
 
 return {
 	banner = {
-		lightmode = 'Age of Empires logo allmode.png',
-		darkmode = 'Age of Empires logo allmode.png',
+		lightmode = 'GeoGuessr full logo allmode.svg',
+		darkmode = 'GeoGuessr full logo allmode.svg',
 	},
-	metadesc = 'The Age of Empires esports wiki covering everything from tournaments, maps,' ..
-		' to competitive players, teams and transfers.',
-	title = 'Age of Empires',
+	metadesc = 'Comprehensive GeoGuessr wiki with articles covering everything from formats, to strategies,' ..
+	'to tournaments, to competitive players and teams',
+	title = 'GeoGuessr Wiki | Liquipedia',
 	navigation = {
 		{
-			file = 'Baltune at The Garrison.jpg',
+			file = 'GeoGuessr_World_Map_Icon.jpg',
+			title = 'Maps',
+			link = 'Portal:Maps',
+			count = {
+				method = 'CATEGORY',
+				category = 'Maps',
+			},
+		},
+		{
+			file = 'GeoGuessr Format Image.png',
+			title = 'Game Modes',
+			link = 'Portal:Modes',
+		},
+		{
+			file = 'Jake Lyons at GeoGuessr World Cup 2024.jpg',
 			title = 'Players',
 			link = 'Portal:Players',
 			count = {
@@ -98,25 +109,7 @@ return {
 			},
 		},
 		{
-			file = 'GamerLegion Team 2025.jpg',
-			title = 'Teams',
-			link = 'Portal:Teams',
-			count = {
-				method = 'LPDB',
-				table = 'team',
-			},
-		},
-		{
-			file = 'Stage at The Garrison.jpg',
-			title = 'Tournaments',
-			link = 'Portal:Tournaments',
-			count = {
-				method = 'LPDB',
-				table = 'tournament',
-			},
-		},
-		{
-			file = 'Yo vs ACCM at The Garrison.jpg',
+			file = 'Hardecki at the ALGS Stockholm Playoffs.jpg',
 			title = 'Transfers',
 			link = 'Portal:Transfers',
 			count = {
@@ -125,17 +118,16 @@ return {
 			},
 		},
 		{
-			file = 'Age of Empires 2 Mountain Royals Key Art.jpg',
-			title = 'Civilizations',
-			link = 'Portal:Civilizations',
+			file = 'Blinky Geoguessr World Cup 2024 Champion.jpg',
+			title = 'Tournaments',
+			link = 'Portal:Tournaments',
 			count = {
 				method = 'LPDB',
-				table = 'datapoint',
-				conditions = '[[type::faction]]'
+				table = 'tournament',
 			},
 		},
 		{
-			file = 'JorDan at The Garrison.jpg',
+			file = 'NRG hodsic at the ALGS Mannheim Split 2 Playoffs.jpg',
 			title = 'Statistics',
 			link = 'Portal:Statistics',
 		},
@@ -143,7 +135,7 @@ return {
 	layouts = {
 		main = {
 			{ -- Left
-				size = 5,
+				size = 6,
 				children = {
 					{
 						mobileOrder = 1,
@@ -154,17 +146,13 @@ return {
 						content = CONTENT.transfers,
 					},
 					{
-						mobileOrder = 4,
-						content = CONTENT.thisDay,
-					},
-					{
-						mobileOrder = 5,
+						mobileOrder = 6,
 						content = CONTENT.wantToHelp,
 					},
 				}
 			},
 			{ -- Right
-				size = 7,
+				size = 6,
 				children = {
 					{
 						mobileOrder = 2,
@@ -197,17 +185,16 @@ return {
 							},
 						},
 					},
-				},
-			},
-			{
-				size = 12,
-				children = {
+					{
+						mobileOrder = 4,
+						content = CONTENT.thisDay,
+					},
 					{
 						mobileOrder = 5,
 						content = CONTENT.usefulArticles,
-					}
+					},
 				},
-			}
+			},
 		},
 	},
 }

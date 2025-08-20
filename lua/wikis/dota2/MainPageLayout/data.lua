@@ -1,17 +1,18 @@
 ---
 -- @Liquipedia
--- wiki=dota2
 -- page=Module:MainPageLayout/data
 --
 -- Please see https://github.com/Liquipedia/Lua-Modules to contribute
 --
 
-local DateExt = require('Module:Date/Ext')
 local Lua = require('Module:Lua')
-local Template = require('Module:Template')
+
+local DateExt = Lua.import('Module:Date/Ext')
+local Template = Lua.import('Module:Template')
 
 local FilterButtonsWidget = Lua.import('Module:Widget/FilterButtons')
 local TournamentsTicker = Lua.import('Module:Widget/Tournaments/Ticker')
+-- local Rankings = Lua.import('Module:Widget/Ratings')
 
 local Button = Lua.import('Module:Widget/Basic/Button')
 local HtmlWidgets = Lua.import('Module:Widget/Html/All')
@@ -20,6 +21,7 @@ local IconFa = Lua.import('Module:Widget/Image/Icon/Fontawesome')
 local MatchTicker = Lua.import('Module:Widget/MainPage/MatchTicker')
 local ThisDayWidgets = Lua.import('Module:Widget/MainPage/ThisDay')
 local TransfersList = Lua.import('Module:Widget/MainPage/TransfersList')
+local WantToHelp = Lua.import('Module:Widget/MainPage/WantToHelp')
 local WidgetUtil = Lua.import('Module:Widget/Util')
 
 local ABOUT_HEADING = 'About Liquipedia\'s Dota 2 Wiki'
@@ -30,25 +32,25 @@ local ABOUT_BODY = 'We are the largest Dota 2 wiki that anyone can edit, maintai
 
 ---@param link string
 ---@param displayName string
+---@param hubIcon string
 ---@return Widget
-local function createHubButton(link, displayName)
+local function createHubButton(link, displayName, hubIcon)
 	return Button{
 		link = link,
 		title = 'Click here to get to the ' .. displayName:lower(),
-		variant = 'secondary',
+		variant = 'tertiary',
 		children = {
 			IconFa{
-				additionalClasses = { 'wiki-color-dark' },
-				iconName = 'hub'
+				iconName = hubIcon,
 			},
 			' View ' .. displayName
 		}
 	}
 end
 
-local MAIN_PAGE_BUTTON = createHubButton('Main Page', 'Main Page')
-local ESPORTS_HUB_BUTTON = createHubButton('Portal:Esports', 'Esports Hub')
-local GAME_HUB_BUTTON = createHubButton('Portal:Game', 'Game Hub')
+local MAIN_PAGE_BUTTON = createHubButton('Main Page', 'Main Page', 'main_hub')
+local ESPORTS_HUB_BUTTON = createHubButton('Portal:Esports', 'Esports Hub', 'esports_hub')
+local GAME_HUB_BUTTON = createHubButton('Portal:Game', 'Game Hub', 'game_hub')
 
 local CONTENT = {
 	aboutMain = {
@@ -135,16 +137,15 @@ local CONTENT = {
 	},
 	wantToHelp = {
 		heading = 'Want To Help?',
-		body = '{{Liquipedia:Want_to_help}}',
+		body = WantToHelp{},
 		padding = true,
 		boxid = 1504,
 	},
 	transfers = {
 		heading = 'Transfers',
 		body = TransfersList{
-			transferPage = function ()
-				return 'Transfers/' .. os.date('%Y') .. '/' .. DateExt.quarterOf{ ordinalSuffix = true } .. ' Quarter'
-			end
+			transferPage = 'Transfers/' .. os.date('%Y') .. '/' ..
+				DateExt.quarterOf{ ordinalSuffix = true } .. ' Quarter'
 		},
 		boxid = 1509,
 	},
@@ -171,9 +172,6 @@ local CONTENT = {
 		body = MatchTicker{},
 		padding = true,
 		boxid = 1507,
-		panelAttributes = {
-			['data-switch-group-container'] = 'countdown',
-		},
 	},
 	tournaments = {
 		heading = 'Tournaments',
@@ -184,6 +182,20 @@ local CONTENT = {
 		padding = true,
 		boxid = 1508,
 	},
+--[[
+	rankings = {
+		heading = 'Liquipedia Rankings (Beta)',
+		body = Rankings{
+			teamLimit = 5,
+			progressionLimit = 12,
+			storageType = 'extension',
+			showGraph = false,
+			isSmallerVersion = true
+		},
+		padding = false,
+		boxid = 1511,
+	},
+]]
 }
 
 local LAYOUT_MAIN = {
@@ -195,19 +207,19 @@ local LAYOUT_MAIN = {
 				content = CONTENT.aboutMain,
 			},
 			{
-				mobileOrder = 4,
+				mobileOrder = 5,
 				content = CONTENT.heroes,
 			},
 			{
-				mobileOrder = 5,
+				mobileOrder = 6,
 				content = CONTENT.updates,
 			},
 			{
-				mobileOrder = 9,
+				mobileOrder = 10,
 				content = CONTENT.usefulArticles,
 			},
 			{
-				mobileOrder = 7,
+				mobileOrder = 8,
 				content = CONTENT.wantToHelp,
 			},
 		},
@@ -250,12 +262,18 @@ local LAYOUT_MAIN = {
 					},
 				},
 			},
+--[[
 			{
 				mobileOrder = 6,
+				content = CONTENT.rankings
+			},
+]]
+			{
+				mobileOrder = 7,
 				content = CONTENT.transfers,
 			},
 			{
-				mobileOrder = 9,
+				mobileOrder = 11,
 				content = CONTENT.thisDay,
 			},
 		},
@@ -275,15 +293,15 @@ local LAYOUT_ESPORTS = {
 				content = CONTENT.specialEvents,
 			},
 			{
-				mobileOrder = 4,
+				mobileOrder = 5,
 				content = CONTENT.transfers,
 			},
 			{
-				mobileOrder = 6,
+				mobileOrder = 7,
 				content = CONTENT.thisDay,
 			},
 			{
-				mobileOrder = 7,
+				mobileOrder = 8,
 				content = CONTENT.wantToHelp,
 			},
 		}
@@ -322,8 +340,14 @@ local LAYOUT_ESPORTS = {
 					},
 				},
 			},
+--[[
 			{
-				mobileOrder = 5,
+				mobileOrder = 6,
+				content = CONTENT.rankings
+			},
+]]
+			{
+				mobileOrder = 7,
 				content = CONTENT.updates,
 			},
 		},

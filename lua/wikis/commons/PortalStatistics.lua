@@ -1,34 +1,33 @@
 ---
 -- @Liquipedia
--- wiki=commons
 -- page=Module:PortalStatistics
 --
 -- Please see https://github.com/Liquipedia/Lua-Modules to contribute
 --
 
-local Abbreviation = require('Module:Abbreviation')
-local Array = require('Module:Array')
-local Class = require('Module:Class')
-local Currency = require('Module:Currency')
-local DateExt = require('Module:Date/Ext')
-local Game = require('Module:Game')
-local Info = require('Module:Info')
-local LeagueIcon = require('Module:LeagueIcon')
-local Lpdb = require('Module:Lpdb')
 local Lua = require('Module:Lua')
-local Math = require('Module:MathUtil')
-local Medals = require('Module:Medals')
-local Operator = require('Module:Operator')
-local Logic = require('Module:Logic')
-local String = require('Module:StringUtils')
-local Table = require('Module:Table')
-local Tier = require('Module:Tier/Custom')
 
-local OpponentLibraries = require('Module:OpponentLibraries')
-local Opponent = OpponentLibraries.Opponent
-local OpponentDisplay = OpponentLibraries.OpponentDisplay
+local Abbreviation = Lua.import('Module:Abbreviation')
+local Array = Lua.import('Module:Array')
+local Class = Lua.import('Module:Class')
+local Currency = Lua.import('Module:Currency')
+local DateExt = Lua.import('Module:Date/Ext')
+local Game = Lua.import('Module:Game')
+local Info = Lua.import('Module:Info')
+local LeagueIcon = Lua.import('Module:LeagueIcon')
+local Lpdb = Lua.import('Module:Lpdb')
+local Math = Lua.import('Module:MathUtil')
+local Medals = Lua.import('Module:Medals')
+local Operator = Lua.import('Module:Operator')
+local Logic = Lua.import('Module:Logic')
+local String = Lua.import('Module:StringUtils')
+local Table = Lua.import('Module:Table')
+local Tier = Lua.import('Module:Tier/Custom')
 
-local Condition = require('Module:Condition')
+local Opponent = Lua.import('Module:Opponent/Custom')
+local OpponentDisplay = Lua.import('Module:OpponentDisplay/Custom')
+
+local Condition = Lua.import('Module:Condition')
 local ConditionTree = Condition.Tree
 local ConditionNode = Condition.Node
 local Comparator = Condition.Comparator
@@ -44,7 +43,7 @@ local TIMESTAMP = DateExt.readTimestamp(DATE) --[[@as integer]]
 local DEFAULT_ALLOWED_PLACES = {'1', '2', '3', '1-2', '1-3', '2-3', '2-4', '3-4'}
 local DEFAULT_ROUND_PRECISION = Info.defaultRoundPrecision or 2
 local LANG = mw.getContentLanguage()
-local MAX_OPPONENT_LIMIT = 10
+local MAX_OPPONENT_LIMIT = Info.config.defaultMaxPlayersPerPlacement or 10
 local MAX_QUERY_LIMIT = 5000
 local US_DOLLAR = 'USD'
 local SHOWMATCH = 'Showmatch'
@@ -1487,4 +1486,15 @@ function StatisticsPortal._addArrays(arrays)
 	end)
 end
 
-return Class.export(StatisticsPortal)
+return Class.export(StatisticsPortal, {exports = {
+	'gameEarningsChart',
+	'modeEarningsChart',
+	'topEarningsChart',
+	'coverageStatistics',
+	'coverageMatchTable',
+	'coverageTournamentTable',
+	'prizepoolBreakdown',
+	'pieChartBreakdown',
+	'earningsTable',
+	'playerAgeTable',
+}})

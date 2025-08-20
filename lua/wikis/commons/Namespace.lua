@@ -1,6 +1,5 @@
 ---
 -- @Liquipedia
--- wiki=commons
 -- page=Module:Namespace
 --
 -- Please see https://github.com/Liquipedia/Lua-Modules to contribute
@@ -16,6 +15,7 @@ local NS_USER = 2
 local NS_PROJECT = 4 -- "Liquipedia" namespace
 local NS_TEMPLATE = 10
 local NS_HELP = 12
+local NS_MATCH = 130
 local NS_MODULE = 828
 local NS_MODULE_TALK = 829
 
@@ -97,6 +97,12 @@ function Namespace.prefixFromId(id)
 	end
 
 	return name
+end
+
+---can not use Namespace.idFromName because the NS does not exist on all wikis
+---@return integer
+function Namespace.matchNamespaceId()
+	return NS_MATCH
 end
 
 return Namespace

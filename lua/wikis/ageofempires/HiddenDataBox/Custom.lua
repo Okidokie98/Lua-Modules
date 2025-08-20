@@ -1,15 +1,16 @@
 ---
 -- @Liquipedia
--- wiki=ageofempires
 -- page=Module:HiddenDataBox/Custom
 --
 -- Please see https://github.com/Liquipedia/Lua-Modules to contribute
 --
-local Class = require('Module:Class')
-local Json = require('Module:Json')
+
 local Lua = require('Module:Lua')
-local Tier = require('Module:Tier/Custom')
-local Variables = require('Module:Variables')
+
+local Class = Lua.import('Module:Class')
+local Json = Lua.import('Module:Json')
+local Tier = Lua.import('Module:Tier/Custom')
+local Variables = Lua.import('Module:Variables')
 
 local BasicHiddenDataBox = Lua.import('Module:HiddenDataBox')
 
@@ -67,4 +68,4 @@ function CustomHiddenDataBox.addCustomVariables(args, queryResult)
 	end
 end
 
-return Class.export(CustomHiddenDataBox)
+return Class.export(CustomHiddenDataBox, {exports = {'run'}})

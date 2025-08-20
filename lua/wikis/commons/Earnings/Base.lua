@@ -1,28 +1,28 @@
 ---
 -- @Liquipedia
--- wiki=commons
 -- page=Module:Earnings/Base
 --
 -- Please see https://github.com/Liquipedia/Lua-Modules to contribute
 --
 
-local Array = require('Module:Array')
-local Class = require('Module:Class')
-local DateExt = require('Module:Date/Ext')
-local Logic = require('Module:Logic')
-local Lpdb = require('Module:Lpdb')
-local MathUtils = require('Module:MathUtil')
-local String = require('Module:StringUtils')
-local Table = require('Module:Table')
-local Team = require('Module:Team')
+local Lua = require('Module:Lua')
 
-local OpponentLibrary = require('Module:OpponentLibraries')
-local Opponent = OpponentLibrary.Opponent
+local Array = Lua.import('Module:Array')
+local Class = Lua.import('Module:Class')
+local DateExt = Lua.import('Module:Date/Ext')
+local Info = Lua.import('Module:Info', {loadData = true})
+local Logic = Lua.import('Module:Logic')
+local Lpdb = Lua.import('Module:Lpdb')
+local MathUtils = Lua.import('Module:MathUtil')
+local String = Lua.import('Module:StringUtils')
+local Table = Lua.import('Module:Table')
+local Team = Lua.import('Module:Team')
+
+local Opponent = Lua.import('Module:Opponent/Custom')
+
+local DEFAULT_MAX_PLAYERS_PER_PLACEMENT = Info.config.defaultMaxPlayersPerPlacement or 10
 
 local Earnings = {}
-
--- customizable in /Custom
-Earnings.defaultNumberOfStoredPlayersPerMatch = 10
 
 ---@class playerEarningsArgs
 ---@field player string the player/individual for whom the earnings shall be calculated
@@ -56,7 +56,7 @@ function Earnings.calculateForPlayer(args)
 
 	local prefix = args.prefix or 'p'
 
-	local playerPositionLimit = tonumber(args.playerPositionLimit) or Earnings.defaultNumberOfStoredPlayersPerMatch
+	local playerPositionLimit = tonumber(args.playerPositionLimit) or DEFAULT_MAX_PLAYERS_PER_PLACEMENT
 	if playerPositionLimit <= 0 then
 		error('"playerPositionLimit" has to be >= 1')
 	end
@@ -100,7 +100,7 @@ function Earnings.calculateForTeam(args)
 		return 0
 	end
 
-	local playerPositionLimit = tonumber(args.playerPositionLimit) or Earnings.defaultNumberOfStoredPlayersPerMatch
+	local playerPositionLimit = tonumber(args.playerPositionLimit) or DEFAULT_MAX_PLAYERS_PER_PLACEMENT
 	if playerPositionLimit <= 0 then
 		error('"playerPositionLimit" has to be >= 1')
 	end
@@ -228,4 +228,4 @@ function Earnings._determineValue(placement, aliases, isPlayerQuery)
 	return indivPrize * Table.size(Table.filter(playerData, function(team) return Table.includes(aliases, team) end))
 end
 
-return Class.export(Earnings)
+return Class.export(Earnings, {exports = {'calculateForPlayer', 'calculateForTeam'}})

@@ -1,6 +1,5 @@
 ---
 -- @Liquipedia
--- wiki=starcraft
 -- page=Module:Info
 --
 -- Please see https://github.com/Liquipedia/Lua-Modules to contribute
@@ -37,8 +36,6 @@ return {
 			matchWidthMobile = 120,
 			matchWidth = 170,
 		},
+		defaultMaxPlayersPerPlacement = 35,
 	},
-	maximumNumberOfPlayersInPlacements = 35,
-	opponentLibrary = 'Opponent/Starcraft',
-	opponentDisplayLibrary = 'OpponentDisplay/Starcraft',
 }

@@ -1,12 +1,13 @@
 ---
 -- @Liquipedia
--- wiki=commons
 -- page=Module:Page
 --
 -- Please see https://github.com/Liquipedia/Lua-Modules to contribute
 --
 
-local String = require('Module:StringUtils')
+local Lua = require('Module:Lua')
+
+local String = Lua.import('Module:StringUtils')
 
 local Page = {}
 

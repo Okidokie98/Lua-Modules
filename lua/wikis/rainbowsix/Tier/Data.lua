@@ -1,6 +1,5 @@
 ---
 -- @Liquipedia
--- wiki=rainbowsix
 -- page=Module:Tier/Data
 --
 -- Please see https://github.com/Liquipedia/Lua-Modules to contribute
@@ -105,7 +104,7 @@ return {
 			link = 'Point Rankings',
 			category = 'Point Rankings',
 		},
-		award = {
+		awards = {
 			value = 'Awards',
 			sort = 'B4',
 			name = 'Awards',

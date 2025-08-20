@@ -1,14 +1,14 @@
 ---
 -- @Liquipedia
--- wiki=rocketleague
 -- page=Module:HiddenDataBox/Custom
 --
 -- Please see https://github.com/Liquipedia/Lua-Modules to contribute
 --
 
-local Class = require('Module:Class')
 local Lua = require('Module:Lua')
-local Variables = require('Module:Variables')
+
+local Class = Lua.import('Module:Class')
+local Variables = Lua.import('Module:Variables')
 
 local BasicHiddenDataBox = Lua.import('Module:HiddenDataBox')
 local CustomLeague = Lua.import('Module:Infobox/League/Custom') ---@type RocketleagueLeagueInfobox
@@ -35,4 +35,4 @@ function CustomHiddenDataBox.addCustomVariables(args, queryResult)
 	Variables.varDefine('showh2h', CustomLeague.parseShowHeadToHead(args))
 end
 
-return Class.export(CustomHiddenDataBox)
+return Class.export(CustomHiddenDataBox, {exports = {'run'}})

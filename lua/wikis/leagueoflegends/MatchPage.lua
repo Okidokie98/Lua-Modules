@@ -1,27 +1,23 @@
 ---
 -- @Liquipedia
--- wiki=leagueoflegends
 -- page=Module:MatchPage
 --
 -- Please see https://github.com/Liquipedia/Lua-Modules to contribute
 --
 
-local Array = require('Module:Array')
-local Class = require('Module:Class')
-local DateExt = require('Module:Date/Ext')
-local FnUtil = require('Module:FnUtil')
-local Json = require('Module:Json')
-local Logic = require('Module:Logic')
 local Lua = require('Module:Lua')
-local Operator = require('Module:Operator')
-local String = require('Module:StringUtils')
-local Table = require('Module:Table')
+
+local Array = Lua.import('Module:Array')
+local Class = Lua.import('Module:Class')
+local FnUtil = Lua.import('Module:FnUtil')
+local Logic = Lua.import('Module:Logic')
+local Operator = Lua.import('Module:Operator')
+local String = Lua.import('Module:StringUtils')
+local Table = Lua.import('Module:Table')
 
 local BaseMatchPage = Lua.import('Module:MatchPage/Base')
-local DisplayHelper = Lua.import('Module:MatchGroup/Display/Helper')
 
 local HtmlWidgets = Lua.import('Module:Widget/Html/All')
-local Comment = Lua.import('Module:Widget/Match/Page/Comment')
 local Div = HtmlWidgets.Div
 local IconFa = Lua.import('Module:Widget/Image/Icon/Fontawesome')
 local IconImage = Lua.import('Module:Widget/Image/Icon/Image')
@@ -70,23 +66,23 @@ local KEYSTONES = Table.map({
 	return value, true
 end)
 
+local ROLE_ORDER = Table.map({
+	'top',
+	'jungle',
+	'middle',
+	'bottom',
+	'support',
+}, function(idx, value)
+	return value, idx
+end)
+
 local DEFAULT_ITEM = 'EmptyIcon'
 local LOADOUT_ICON_SIZE = '24px'
-local AVAILABLE_FOR_TIERS = {1, 2, 3}
 local ITEMS_TO_SHOW = 6
 
 local KDA_ICON = IconFa{iconName = 'leagueoflegends_kda', hover = 'KDA'}
 local GOLD_ICON = IconFa{iconName = 'gold', hover = 'Gold'}
 local SPAN_SLASH = HtmlWidgets.Span{classes = {'slash'}, children = '/'}
-
-local MATCH_PAGE_START_TIME = 1619827201 -- May 1st 2021 midnight
-
----@param match table
----@return boolean
-function MatchPage.isEnabledFor(match)
-	return Table.includes(AVAILABLE_FOR_TIERS, tonumber(match.liquipediatier))
-			and (match.timestamp == DateExt.defaultTimestamp or match.timestamp > MATCH_PAGE_START_TIME)
-end
 
 ---@param props {match: MatchGroupUtilMatch}
 ---@return Widget
@@ -111,17 +107,22 @@ function MatchPage:populateGames()
 			team.scoreDisplay = game.winner == teamIdx and 'W' or game.finished and 'L' or '-'
 			team.side = String.nilIfEmpty(game.extradata['team' .. teamIdx ..'side'])
 
-			team.players = Array.map(opponent.players, function(player)
-				if Logic.isDeepEmpty(player) then return end
-				return Table.mergeInto(player, {
-					items = Array.map(Array.range(1, ITEMS_TO_SHOW), function(idx)
-						return player.items[idx] or DEFAULT_ITEM
-					end),
-					runeKeystone = Array.filter(player.runes.primary.runes, function(rune)
-						return KEYSTONES[rune]
-					end)[1]
-				})
-			end)
+			team.players = Array.map(
+				Array.sortBy(Array.filter(opponent.players, Logic.isNotEmpty), function(player)
+					return ROLE_ORDER[player.role]
+				end),
+				function(player)
+					if Logic.isDeepEmpty(player) then return end
+					return Table.mergeInto(player, {
+						items = Array.map(Array.range(1, ITEMS_TO_SHOW), function(idx)
+							return player.items[idx] or DEFAULT_ITEM
+						end),
+						runeKeystone = Array.filter(player.runes.primary.runes, function(rune)
+							return KEYSTONES[rune]
+						end)[1]
+					})
+				end
+			)
 
 			if game.finished then
 				-- Aggregate stats
@@ -424,17 +425,35 @@ function MatchPage:_renderTeamStats(game)
 							team2Value = game.teams[2].objectives.inhibitors
 						},
 						{
-							icon = IconImage{imageLight = 'Lol stat icon baron.png', link = ''},
-							name = 'Barons',
-							team1Value = game.teams[1].objectives.barons,
-							team2Value = game.teams[2].objectives.barons
+							icon = IconImage{imageLight = 'Lol stat icon grub.png', link = ''},
+							name = 'Void Grubs',
+							team1Value = game.teams[1].objectives.grubs,
+							team2Value = game.teams[2].objectives.grubs
+						},
+						{
+							icon = IconImage{imageLight = 'Lol stat icon herald.png', link = ''},
+							name = 'Rift Heralds',
+							team1Value = game.teams[1].objectives.heralds,
+							team2Value = game.teams[2].objectives.heralds
+						},
+						{
+							icon = IconImage{imageLight = 'Lol stat icon atakhan.png', link = ''},
+							name = 'Atakhan',
+							team1Value = game.teams[1].objectives.atakhans,
+							team2Value = game.teams[2].objectives.atakhans
 						},
 						{
 							icon = IconImage{imageLight = 'Lol stat icon dragon.png', link = ''},
 							name = 'Dragons',
 							team1Value = game.teams[1].objectives.dragons,
 							team2Value = game.teams[2].objectives.dragons
-						}
+						},
+						{
+							icon = IconImage{imageLight = 'Lol stat icon baron.png', link = ''},
+							name = 'Barons',
+							team1Value = game.teams[1].objectives.barons,
+							team2Value = game.teams[2].objectives.barons
+						},
 					}
 				}
 			}
@@ -449,7 +468,7 @@ function MatchPage:_renderPlayersPerformance(game)
 	return {
 		HtmlWidgets.H3{children = 'Player Performance'},
 		Div{
-			classes = {'match-bm-lol-players-wrapper'},
+			classes = {'match-bm-players-wrapper'},
 			children = {
 				self:_renderTeamPerformance(game, 1),
 				self:_renderTeamPerformance(game, 2)
@@ -464,7 +483,7 @@ end
 ---@return Widget
 function MatchPage:_renderTeamPerformance(game, teamIndex)
 	return Div{
-		classes = {'match-bm-lol-players-team'},
+		classes = {'match-bm-players-team'},
 		children = WidgetUtil.collect(
 			Div{
 				classes = {'match-bm-players-team-header'},
@@ -484,7 +503,7 @@ end
 ---@return Widget
 function MatchPage:_renderPlayerPerformance(game, teamIndex, player)
 	return Div{
-		classes = {'match-bm-lol-players-player'},
+		classes = {'match-bm-players-player match-bm-players-player--col-1'},
 		children = {
 			Div{
 				classes = {'match-bm-lol-players-player-details'},
@@ -505,7 +524,7 @@ function MatchPage:_renderPlayerPerformance(game, teamIndex, player)
 				}
 			},
 			Div{
-				classes = {'match-bm-lol-players-player-stats'},
+				classes = {'match-bm-players-player-stats match-bm-players-player-stats--col-4'},
 				children = {
 					PlayerStat{
 						title = {KDA_ICON, 'KDA'},
@@ -619,18 +638,8 @@ function MatchPage._buildPlayerLoadout(player)
 	}
 end
 
----@return MatchPageComment[]
-function MatchPage:addComments()
-	local casters = Json.parseIfString(self.matchData.extradata.casters)
-	if Logic.isEmpty(casters) then return {} end
-	return {
-		Comment{
-			children = WidgetUtil.collect(
-				#casters > 1 and 'Casters: ' or 'Caster: ',
-				Array.interleave(DisplayHelper.createCastersDisplay(casters), ', ')
-			)
-		}
-	}
+function MatchPage.getPoweredBy()
+	return 'SAP logo.svg'
 end
 
 return MatchPage

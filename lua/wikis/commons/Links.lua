@@ -1,15 +1,15 @@
 ---
 -- @Liquipedia
--- wiki=commons
 -- page=Module:Links
 --
 -- Please see https://github.com/Liquipedia/Lua-Modules to contribute
 --
 
-local Array = require('Module:Array')
-local Class = require('Module:Class')
 local Lua = require('Module:Lua')
-local Table = require('Module:Table')
+
+local Array = Lua.import('Module:Array')
+local Class = Lua.import('Module:Class')
+local Table = Lua.import('Module:Table')
 
 local CustomData = Lua.requireIfExists('Module:Links/CustomData', {loadData = true}) or {}
 
@@ -52,6 +52,10 @@ local PREFIXES = {
 		stream = 'https://live.bilibili.com/',
 	},
 	['bilibili-stream'] = {'https://live.bilibili.com/'},
+	blasttv = {
+		'https://blast.tv/',
+		match = 'https://blast.tv/',
+	},
 	bluesky = {'https://bsky.app/profile/'},
 	booyah = {'https://booyah.live/'},
 	bracket = {''},
@@ -79,7 +83,7 @@ local PREFIXES = {
 		match = 'https://www.chessgames.com/perl/chessgame?gid=',
 	},
 	chessresults = {'https://chess-results.com/'},
-	chzzk = {'https://chzzk.naver.com/live/'},
+	chzzk = {'https://chzzk.naver.com/'},
 	civdraft = {match = 'https://aoe2cm.net/draft/'},
 	cntft = {'https://lol.qq.com/tft/#/masterDetail/'},
 	corestrike = {'https://corestrike.gg/lookup/'},
@@ -111,9 +115,9 @@ local PREFIXES = {
 	['esea-d'] = {'https://play.esea.net/league/standings?divisionId='},
 	esl = {
 		'',
-		team = 'https://play.eslgaming.com/team/',
-		player = 'https://play.eslgaming.com/player/',
-		match = 'https://play.eslgaming.com/match/',
+		team = 'https://web.archive.org/web/play.eslgaming.com/team/',
+		player = 'https://web.archive.org/web/play.eslgaming.com/player/',
+		match = 'https://web.archive.org/web/play.eslgaming.com/match/',
 	},
 	esplay = {'https://esplay.com/tournament/'},
 	esportal = {'https://esportal.com/tournament/'},
@@ -142,6 +146,7 @@ local PREFIXES = {
 	gol = {match = 'https://gol.gg/game/stats/'},
 	gosugamers = {''},
 	gplus = {'http://plus.google.com/-plus'},
+	h3gg = {match = 'https://www.h3.gg/competitions/v2/match/'},
 	halodatahive = {
 		'https://halodatahive.com/Tournament/Detail/',
 		team = 'https://halodatahive.com/Team/Detail/',
@@ -278,6 +283,7 @@ local PREFIXES = {
 		player = 'https://www.teamfortress.tv/user/',
 		match = 'http://tf.gg/',
 	},
+	threads = {'https://threads.com/@'},
 	tiktok = {'https://tiktok.com/@'},
 	tlpd = {''},
 	tlpdint = {
@@ -363,6 +369,7 @@ local ALIASES = {
 local ICON_KEYS_TO_RENAME = {
 	['bilibili-stream'] = 'bilibili',
 	daumcafe = 'cafe-daum',
+	blasttv = 'blast',
 	['esea-d'] = 'esea-league',
 	['faceit-c'] = 'faceit',
 	['faceit-c2'] = 'faceit',
@@ -389,6 +396,10 @@ local MATCH_ICONS = {
 	ballchasing = {
 		icon = 'File:Ballchasing icon.png',
 		text = 'Ballchasing replays'
+	},
+	blasttv = {
+		icon = 'File:BLAST icon allmode.png',
+		text = 'BLAST.tv matchpage'
 	},
 	breakingpoint = {
 		icon = 'File:Breaking Point GG icon lightmode.png',
@@ -454,6 +465,10 @@ local MATCH_ICONS = {
 	gol = {
 		icon = 'File:Gol.gg allmode.png',
 		text = 'GolGG Match Report',
+	},
+	h3gg = {
+		icon = 'File:H3gg icon allmode.png',
+		text = 'H3.gg match details',
 	},
 	halodatahive = {
 		icon = 'File:Halo Data Hive allmode.png',
@@ -689,7 +704,7 @@ function Links.makeFullLinksForTableItems(links, variant, fallbackToBase)
 end
 
 --remove appended number
---needed because the link icons require e.g. 'esl' instead of 'esl2'
+--needed because the link icons require e.g. 'twitch' instead of 'twitch2'
 ---@param key string
 ---@return string
 function Links.removeAppendedNumber(key)
@@ -712,4 +727,4 @@ function Links.getMatchIconData(key)
 	return MATCH_ICONS[Links.removeAppendedNumber(key)]
 end
 
-return Class.export(Links, {frameOnly = true})
+return Class.export(Links, {frameOnly = true, exports = {'makeFullLink'}})

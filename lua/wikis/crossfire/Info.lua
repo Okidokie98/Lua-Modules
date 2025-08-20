@@ -1,6 +1,5 @@
 ---
 -- @Liquipedia
--- wiki=crossfire
 -- page=Module:Info
 --
 -- Please see https://github.com/Liquipedia/Lua-Modules to contribute
@@ -66,6 +65,16 @@ return {
 		},
 		transfers = {
 			showTeamName = true,
+		},
+		thisDay = {
+			tiers = {1, 2},
+			excludeTierTypes = {'Qualifier'},
+			showPatches = true,
+		},
+		infoboxPlayer = {
+			automatedHistory = {
+				mode = 'merge',
+			},
 		},
 	},
 	defaultRoundPrecision = 0,

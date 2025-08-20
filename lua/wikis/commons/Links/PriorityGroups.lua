@@ -1,6 +1,5 @@
 ---
 -- @Liquipedia
--- wiki=commons
 -- page=Module:Links/PriorityGroups
 --
 -- Please see https://github.com/Liquipedia/Lua-Modules to contribute
@@ -20,6 +19,7 @@ return {
 		'apexlegendsstatus',
 		'battlefy',
 		'b5csgo',
+		'blasttv',
 		'cfs',
 		'challengermode',
 		'challonge',
@@ -81,6 +81,7 @@ return {
 		'steam',
 		'steamalternative',
 		'telegram',
+		'threads',
 		'tiktok',
 		'twitter',
 		'vk',

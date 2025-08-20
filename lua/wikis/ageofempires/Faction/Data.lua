@@ -1,12 +1,13 @@
 ---
 -- @Liquipedia
--- wiki=ageofempires
 -- page=Module:Faction/Data
 --
 -- Please see https://github.com/Liquipedia/Lua-Modules to contribute
 --
 
-local Array = require('Module:Array')
+local Lua = require('Module:Lua')
+
+local Array = Lua.import('Module:Array')
 
 local AOE1_SUFFIX = '/Age of Empires I'
 local AOE2_SUFFIX = '/Age of Empires II'

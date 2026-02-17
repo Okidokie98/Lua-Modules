@@ -37,14 +37,14 @@ end
 ---@param opponent MGIParsedOpponent
 ---@param opponentIndex integer
 function MatchFunctions.adjustOpponent(opponent, opponentIndex)
-	opponent.extradata = CustomMatchGroupInput.getOpponentExtradata(opponent)
+	Table.mergeInto(opponent.extradata, CustomMatchGroupInput.getOpponentExtradata(opponent))
 	if opponent.extradata.additionalScores then
 		opponent.score = CustomMatchGroupInput._getSetWins(opponent)
 	end
 end
 
 ---@param match table
----@param opponents table[]
+---@param opponents MGIParsedOpponent[]
 ---@return table[]
 function MatchFunctions.extractMaps(match, opponents)
 	local maps = {}
@@ -140,7 +140,7 @@ end
 
 ---@param match table
 ---@param games table[]
----@param opponents table[]
+---@param opponents MGIParsedOpponent[]
 ---@return table
 function MatchFunctions.getExtraData(match, games, opponents)
 	return {

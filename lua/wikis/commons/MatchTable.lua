@@ -22,7 +22,8 @@ local Operator = Lua.import('Module:Operator')
 local Page = Lua.import('Module:Page')
 local String = Lua.import('Module:StringUtils')
 local Table = Lua.import('Module:Table')
-local Team = Lua.import('Module:Team')
+local TeamTemplate = Lua.import('Module:TeamTemplate')
+local Tournament = Lua.import('Module:Tournament')
 local Tier = Lua.import('Module:Tier/Custom')
 local VodLink = Lua.import('Module:VodLink')
 
@@ -31,7 +32,9 @@ local PlayerExt = Lua.import('Module:Player/Ext/Custom')
 local Opponent = Lua.import('Module:Opponent/Custom')
 local OpponentDisplay = Lua.import('Module:OpponentDisplay/Custom')
 
+local Link = Lua.import('Module:Widget/Basic/Link')
 local MatchPageButton = Lua.import('Module:Widget/Match/PageButton')
+local HtmlWidgets = Lua.import('Module:Widget/Html/All')
 
 local Condition = Lua.import('Module:Condition')
 local ConditionTree = Condition.Tree
@@ -56,6 +59,7 @@ local SECONDS_ONE_DAY = 3600 * 24
 ---@field displayGameIcons boolean
 ---@field showResult boolean
 ---@field aliases table<string, true>
+---@field addCategory boolean
 ---@field vs table<string, true>
 ---@field timeRange {startDate: number, endDate: number}
 ---@field title string?
@@ -63,6 +67,7 @@ local SECONDS_ONE_DAY = 3600 * 24
 ---@field showIcon boolean
 ---@field showVod boolean
 ---@field showMatchPage boolean
+---@field matchPageButtonText 'full'|'short'|'hide'
 ---@field showStats boolean
 ---@field showOnlyGameStats boolean
 ---@field showRoundStats boolean
@@ -101,7 +106,6 @@ local SECONDS_ONE_DAY = 3600 * 24
 ---@field config MatchTableConfig
 ---@field matches MatchTableMatch[]
 ---@field stats MatchTableStats
----@field display Html
 local MatchTable = Class.new(function(self, args)
 	self.args = args or {}
 	self.title = mw.title.getCurrentTitle()
@@ -141,6 +145,7 @@ function MatchTable:_readDefaultConfig()
 	local args = self.args
 
 	return {
+		addCategory = Logic.nilOr(Logic.readBoolOrNil(args.addCategory), true),
 		mode = args.tableMode,
 		limit = tonumber(args.limit),
 		displayGameIcons = Logic.readBool(args.gameIcons),
@@ -159,6 +164,7 @@ function MatchTable:_readDefaultConfig()
 		teamStyle = String.nilIfEmpty(args.teamStyle) or 'short',
 		linkSubPage = Logic.readBool(args.linkSubPage),
 		showMatchPage = Info.config.match2.matchPage,
+		matchPageButtonText = args.matchPageButtonText,
 	}
 end
 
@@ -243,8 +249,10 @@ function MatchTable:getOpponentAliases(mode, opponent)
 
 	local aliases = {}
 	--for teams also query pagenames from team template
-	local opponentNames = self.config.queryHistoricalAliases and Team.queryHistoricalNames(opponent.template) or
-		{opponent.template}
+	---@type string[]
+	local opponentNames = self.config.queryHistoricalAliases
+		and Array.map(TeamTemplate.queryHistoricalNames(opponent.template), TeamTemplate.getPageName)
+		or {opponent.template}
 
 	Array.forEach(opponentNames, function(name)
 		name = name:gsub(' ', '_')
@@ -297,13 +305,17 @@ function MatchTable:query()
 		conditions = self:buildConditions(),
 		order = 'date desc',
 		query = 'match2id, match2opponents, match2games, date, dateexact, icon, icondark, liquipediatier, game, type,'
-			.. 'liquipediatiertype, tournament, pagename, tickername, vod, winner, match2bracketdata, extradata, bestof',
+			.. 'liquipediatiertype, tournament, pagename, parent, section, tickername, vod, winner, match2bracketdata,'
+			.. 'extradata, bestof',
 		limit = 50,
 	}, function(match)
 		table.insert(self.matches, self:matchFromRecord(match) or nil)
 	end, self.config.limit)
 
-	if self.config.limit and self.config.limit == #self.matches and not self.config.linkSubPage then
+	if (
+		self.config.limit and self.config.limit == #self.matches and
+		not self.config.linkSubPage and self.config.addCategory
+	) then
 		mw.ext.TeamLiquidIntegration.add_category('Limited match pages')
 	end
 
@@ -410,11 +422,18 @@ function MatchTable:matchFromRecord(record)
 
 	---@type MatchTableMatch
 	local match = Table.merge({
-		displayName = String.nilIfEmpty(record.tournament) or record.pagename:gsub('_', ' '),
-		pageName = record.pagename,
 		vods = self:vodsFromRecord(record),
 		result = result,
 	}, MatchGroupUtil.matchFromRecord(record))
+
+	local tournament = Tournament.partialTournamentFromMatch(match)
+
+	match.displayName = (match.section ~= 'Results' and #match.opponents <= 2) and table.concat({
+		tournament.displayName,
+		'-',
+		match.section
+	}, ' ') or tournament.displayName
+	match.pageName = mw.title.makeTitle(0, match.pageName, match.section).fullText
 
 	return match
 end
@@ -539,7 +558,7 @@ function MatchTable:statsFromMatches()
 end
 
 ---@return Html
-function MatchTable:build()
+function MatchTable:buildDisplay()
 	local display = mw.html.create('table')
 		:addClass('wikitable wikitable-striped sortable')
 		:css('text-align', 'center')
@@ -550,12 +569,12 @@ function MatchTable:build()
 		local text = 'This ' .. (self.config.mode == Opponent.solo and Opponent.solo or Opponent.team)
 			.. ' has not played any matches yet.'
 
-		return mw.html.create('tr')
+		return display:tag('tr')
 			:tag('td')
 				:attr('colspan', '100')
 				:css('font-style', 'italic')
 				:wikitext(text)
-				:done()
+				:allDone()
 	end
 
 	local currentYear
@@ -577,10 +596,15 @@ function MatchTable:build()
 				:wikitext('[[' .. pagename .. '|Extended list of matches]]')
 	end
 
+	return display
+end
+
+---@return Html
+function MatchTable:build()
 	local wrappedTableNode = mw.html.create('div')
 		:addClass('match-table-wrapper')
 		:addClass('table-responsive')
-		:node(display)
+		:node(self:buildDisplay())
 
 	return mw.html.create('div')
 		:node(self:displayStats())
@@ -660,7 +684,7 @@ function MatchTable:_displayDate(match)
 		return cell
 	end
 
-	return cell:node(Countdown._create{
+	return cell:node(Countdown.create{
 		finished = match.finished,
 		date = DateExt.toCountdownArg(match.timestamp, match.timezoneId, match.dateIsExact),
 		rawdatetime = true,
@@ -721,12 +745,12 @@ function MatchTable:_displayIcon(match)
 end
 
 ---@param match MatchTableMatch
----@return Html
+---@return Widget
 function MatchTable:_displayTournament(match)
-	local displayName = (self.config.useTickerName and match.tickername) or match.displayName
-	return mw.html.create('td')
-		:css('text-align', 'left')
-		:wikitext(Page.makeInternalLink(displayName, match.pageName))
+	return HtmlWidgets.Td{
+		css = {['text-align'] = 'left'},
+		children = Link{children = match.displayName, link = match.pageName}
+	}
 end
 
 ---@param match MatchTableMatch
@@ -825,7 +849,7 @@ end
 function MatchTable:_displayMatchPage(match)
 	if not self.config.showMatchPage then return end
 
-	return mw.html.create('td'):node(MatchPageButton{match = match})
+	return mw.html.create('td'):node(MatchPageButton{match = match, buttonText = self.config.matchPageButtonText})
 end
 
 ---@param winner any

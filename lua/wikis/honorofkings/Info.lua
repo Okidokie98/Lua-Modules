@@ -84,7 +84,11 @@ return {
 			autoTeam = true,
 			automatedHistory = {
 				mode = 'manual',
+				storeFromWikiCode = true,
 			},
+		},
+		participants = {
+			defaultPlayerNumber = 5,
 		},
 	},
 }

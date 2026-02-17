@@ -246,7 +246,7 @@ end
 
 ---Display class for matches shown within a match ticker
 ---@class MatchTickerDetails
----@operator call(table): MatchTickerMatch
+---@operator call(table): MatchTickerDetails
 ---@field root Html
 ---@field hideTournament boolean
 ---@field isBrMatch boolean
@@ -322,7 +322,7 @@ function Details:countdown(matchPageIcon)
 
 	local countdownDisplay = mw.html.create('span')
 		:addClass('match-countdown')
-		:node(Countdown._create(countdownArgs))
+		:node(Countdown.create(countdownArgs))
 
 	if Logic.readBool(match.finished) then
 		local function makeVod(vod, num)
@@ -383,11 +383,9 @@ function Details:tournament()
 end
 
 ---Display class for matches shown within a match ticker
----@class MatchTickerMatch
+---@class MatchTickerMatch: MatchTickerMatchInterface
 ---@operator call({config: MatchTickerConfig, match: table}): MatchTickerMatch
 ---@field root Html
----@field config MatchTickerConfig
----@field match table
 local Match = Class.new(
 	function(self, args)
 		self.root = mw.html.create('table')

@@ -12,10 +12,8 @@ local MatchGroupUtil = Lua.import('Module:MatchGroup/Util/Custom')
 
 local MatchCard = Lua.import('Module:Widget/Match/Card')
 
----@class NewMatchTickerMatch
+---@class NewMatchTickerMatch: MatchTickerMatchInterface
 ---@operator call({config: MatchTickerConfig, match: table}): NewMatchTickerMatch
----@field config MatchTickerConfig
----@field match table
 local Match = Class.new(
 	function(self, args)
 		self.config = args.config
@@ -23,13 +21,20 @@ local Match = Class.new(
 	end
 )
 
----@return Html
+---@return Widget
 function Match:create()
 	return MatchCard{
 		match = MatchGroupUtil.matchFromRecord(self.match),
 		hideTournament = self.config.hideTournament,
 		displayGameIcons = self.config.displayGameIcons,
 		onlyHighlightOnValue = self.config.onlyHighlightOnValue,
+		-- TODO: This is bad, and needs to be refactored, but it's not realistic right now, so works for now
+		gameData = {
+			asGame = self.match.asGame,
+			gameIds = self.match.asGameIndexes,
+			map = self.match.map,
+			mapDisplayName = self.match.extradata.displayname
+		}
 	}
 end
 

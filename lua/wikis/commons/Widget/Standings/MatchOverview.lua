@@ -17,7 +17,6 @@ local OpponentDisplay = Lua.import('Module:OpponentDisplay/Custom')
 
 ---@class MatchOverviewWidget: Widget
 ---@operator call(table): MatchOverviewWidget
-
 local MatchOverviewWidget = Class.new(Widget)
 
 ---@return Widget?
@@ -58,7 +57,11 @@ function MatchOverviewWidget:render()
 				css = {
 					['font-size'] = '0.8em',
 				},
-				children = leftOpponent.score .. ' - ' .. opponentToShow.score,
+				children = {
+					OpponentDisplay.InlineScore(leftOpponent),
+					' - ',
+					OpponentDisplay.InlineScore(opponentToShow),
+				},
 			},
 		},
 	}

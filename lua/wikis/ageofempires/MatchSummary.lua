@@ -26,7 +26,7 @@ local PlayerDisplay = Lua.import('Module:Player/Display')
 local CustomMatchSummary = {}
 
 ---@param args table
----@return Html
+---@return Widget
 function CustomMatchSummary.getByMatchId(args)
 	return MatchSummary.defaultGetByMatchId(CustomMatchSummary, args, {
 		width = CustomMatchSummary._determineWidth,
@@ -83,7 +83,7 @@ function CustomMatchSummary._createGame(game, props)
 	local normGame = Game.abbreviation{game = props.game}:lower()
 	game.mapDisplayName = game.mapDisplayName or game.map
 
-	if game.extradata and game.extradata.mapmode then
+	if game.mapDisplayName and game.extradata and game.extradata.mapmode then
 		game.mapDisplayName = game.mapDisplayName .. MapMode._get{game.extradata.mapmode}
 	end
 

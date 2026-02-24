@@ -6,11 +6,25 @@
 --
 
 return {
-	startYear = 2006, --vegas from 2006; vegas2 from 2008; siege from 2015; mobile from 2022; siegex from 2025
+	startYear = 2006, --vegas from 2006; vegas2 from 2008; siege from 2015; mobile from 2022; siegex from 2025; siege (2026) from 2026
 	wikiName = 'rainbowsix',
 	name = 'Rainbow Six',
 	defaultGame = 'siege',
 	games = {
+		-- Apparantly the "X" branding was only for year 10, since there is a different ban system and game-build we will still use a different logo and keep using siegeX in the ban-phase-section
+		siege-2026 = {
+			abbreviation = 'R6S',
+			name = 'Tom Clancy\'s Rainbow Six Siege',
+			link = 'Rainbow Six Siege',
+			logo = {
+				darkMode = 'Rainbow Six Siege X default allmode.png',
+				lightMode = 'Rainbow Six Siege X default allmode.png',
+			},
+			defaultTeamLogo = {
+				darkMode = 'Rainbow Six Siege X default allmode.png',
+				lightMode = 'Rainbow Six Siege X default allmode.png',
+			},
+		},
 		siegex = {
 			abbreviation = 'R6X',
 			name = 'Tom Clancy\'s Rainbow Six Siege X',
